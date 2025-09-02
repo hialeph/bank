@@ -51,22 +51,23 @@ function displayResults(recommendations) {
     
     resultDiv.style.display = 'block';
     var html = '';
+    var currentAccountNumber = accountInput.value; // 현재 입력된 계좌번호 가져오기
     
     for (var i = 0; i < recommendations.length; i++) {
         var rec = recommendations[i];
         var bank = rec.bank;
-        var lengthInfo = '길이: ' + rec.expectedLength.join(', ') + '자리';
+        var lengthInfo = '가능한 길이: ' + rec.expectedLength.join(', ') + '자리';
         var matchedLengthInfo = ' (매칭: ' + rec.matchedLength + '자리)';
         
         // 길이만 매칭되는 경우와 prefix 매칭되는 경우를 다르게 표시
         if (rec.isLengthOnly) {
             var positionInfo = ' (길이만)';
-            html += '<button class="bank-button length-only" onclick="showBankInfo(\'' + bank.code + '\', \'' + bank.name + '\', \'' + lengthInfo + '\', \'' + rec.startPosition + '\', \'' + rec.matchedLength + '\', \'true\')">';
+            html += '<button class="bank-button length-only" onclick="showBankInfo(\'' + bank.code + '\', \'' + bank.name + '\', \'' + lengthInfo + '\', \'' + rec.startPosition + '\', \'' + rec.matchedLength + '\', \'true\', \'' + currentAccountNumber + '\', \'\')">';
             html += bank.name + positionInfo + matchedLengthInfo + '<br><small>' + lengthInfo + '</small>';
             html += '</button>';
         } else {
             var positionInfo = ' (위치: ' + rec.startPosition + '번째)';
-            html += '<button class="bank-button" onclick="showBankInfo(\'' + bank.code + '\', \'' + bank.name + '\', \'' + lengthInfo + '\', \'' + rec.startPosition + '\', \'' + rec.matchedLength + '\', \'false\')">';
+            html += '<button class="bank-button" onclick="showBankInfo(\'' + bank.code + '\', \'' + bank.name + '\', \'' + lengthInfo + '\', \'' + rec.startPosition + '\', \'' + rec.matchedLength + '\', \'false\', \'' + currentAccountNumber + '\', \'' + rec.prefix + '\')">';
             html += bank.name + ' (' + rec.prefix + ')' + positionInfo + matchedLengthInfo + '<br><small>' + lengthInfo + '</small>';
             html += '</button>';
         }
@@ -76,17 +77,47 @@ function displayResults(recommendations) {
 }
 
 // 은행 정보 팝업 표시
-function showBankInfo(code, name, lengthInfo, startPosition, matchedLength, isLengthOnly) {
-    popupTitle.textContent = name;
+function showBankInfo(code, name, lengthInfo, startPosition, matchedLength, isLengthOnly, accountNumber, prefix) {
+    popupTitle.textContent = name+"["+code+"]";
     var positionText = '';
-    if (isLengthOnly === 'true') {
-        positionText = '<br>매칭 방식: 길이만 매칭 (Prefix 없음)';
-    } else if (startPosition !== '1') {
-        positionText = '<br>Prefix 위치: ' + startPosition + '번째 자리';
+    var accountNumberDisplay = '';
+    
+    if (accountNumber) {
+        if (isLengthOnly === 'true') {
+            // 길이만 매칭인 경우 - 전체 계좌번호를 일반 색상으로 표시
+            accountNumberDisplay = '계좌번호: ' + accountNumber;
+            positionText = '<br>매칭 방식: 길이만 매칭 (Prefix 없음)';
+        } else {
+            // 위치 매칭인 경우 - 매칭되는 부분을 파란색으로 강조
+            var highlightedAccount = highlightMatchingDigits(accountNumber, startPosition, prefix);
+            accountNumberDisplay = '계좌번호: ' + highlightedAccount;
+            positionText = '<br>매칭 위치: ' + startPosition + '번째 자리';
+        }
     }
-    var matchedLengthText = '<br>매칭된 길이: ' + matchedLength + '자리';
-    popupContent.innerHTML = '은행코드: ' + code + '<br>' + lengthInfo + positionText + matchedLengthText;
+    
+    var matchedLengthText = '<br>매칭 길이: ' + matchedLength + '자리';
+    popupContent.innerHTML = accountNumberDisplay + positionText + matchedLengthText + '<br>' + lengthInfo;
     popup.style.display = 'block';
+}
+
+// 매칭되는 숫자를 파란색으로 강조하는 함수
+function highlightMatchingDigits(accountNumber, startPosition, prefix) {
+    if (!prefix || !accountNumber) {
+        return accountNumber;
+    }
+    
+    var start = parseInt(startPosition) - 1; // 0부터 시작하는 인덱스로 변환
+    var end = start + prefix.length;
+    
+    if (start < 0 || end > accountNumber.length) {
+        return accountNumber;
+    }
+    
+    var before = accountNumber.substring(0, start);
+    var matching = accountNumber.substring(start, end);
+    var after = accountNumber.substring(end);
+    
+    return before + '<span style="color: #007bff; font-weight: bold;">' + matching + '</span>' + after;
 }
 
 // 팝업 닫기
