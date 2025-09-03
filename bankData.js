@@ -1131,10 +1131,15 @@ function recommendBank(accountNumber, targetBankData) {
                     // 길이별 신뢰도 계산 (prefix가 없으므로 낮은 신뢰도)
                     var lengthConfidence = accountLength === ruleLength ? 0.6 : 0.4;
                     
-                    // 해당 은행의 모든 길이 정보 수집
+                    // 해당 은행의 모든 길이 정보 수집 (중복 제거)
                     var allLengths = [];
+                    var seenLengths = {};
                     for (var l = 0; l < bank.accountRules.length; l++) {
-                        allLengths.push(bank.accountRules[l].length);
+                        var length = bank.accountRules[l].length;
+                        if (!seenLengths[length]) {
+                            allLengths.push(length);
+                            seenLengths[length] = true;
+                        }
                     }
                     
                     recommendations.push({
@@ -1170,10 +1175,15 @@ function recommendBank(accountNumber, targetBankData) {
                             // 위치별 신뢰도 계산 (첫 번째 자리일 때 높은 신뢰도)
                             var positionConfidence = startPos === 0 ? 1.0 : 0.9;
                             
-                            // 해당 은행의 모든 길이 정보 수집
+                            // 해당 은행의 모든 길이 정보 수집 (중복 제거)
                             var allLengths = [];
+                            var seenLengths = {};
                             for (var l = 0; l < bank.accountRules.length; l++) {
-                                allLengths.push(bank.accountRules[l].length);
+                                var length = bank.accountRules[l].length;
+                                if (!seenLengths[length]) {
+                                    allLengths.push(length);
+                                    seenLengths[length] = true;
+                                }
                             }
                             
                             recommendations.push({
