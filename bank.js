@@ -138,7 +138,7 @@ function saveSettingsValues() {
     var newMinInput = parseInt(minInputSetting.value);
     var newMaxBank = parseInt(maxBankSetting.value);
     
-    if (newMinInput >= 1 && newMinInput <= 99 && newMaxBank >= 1 && newMaxBank <= 99) {
+    if (newMinInput >= 3 && newMinInput <= 10 && newMaxBank >= 1 && newMaxBank <= 10) {
         minInputLength = newMinInput;
         maxBankRecommendations = newMaxBank;
         
@@ -161,7 +161,7 @@ function saveSettingsValues() {
         // 입력창에 포커스
         accountInput.focus();
     } else {
-        alert('1에서 99 사이의 값을 입력해주세요.');
+        alert('최소 3에서 10 사이의 값을 입력해주세요.');
     }
 }
 
