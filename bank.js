@@ -116,6 +116,15 @@ function updateInputLength() {
 function openSettingsPopup() {
     minInputSetting.value = minInputLength;
     maxBankSetting.value = maxBankRecommendations;
+    
+    // 입력 길이 제한 이벤트 리스너 추가
+    minInputSetting.oninput = function() {
+        limitInputLength(this, 2);
+    };
+    maxBankSetting.oninput = function() {
+        limitInputLength(this, 2);
+    };
+    
     settingsPopup.style.display = 'block';
 }
 
@@ -129,7 +138,7 @@ function saveSettingsValues() {
     var newMinInput = parseInt(minInputSetting.value);
     var newMaxBank = parseInt(maxBankSetting.value);
     
-    if (newMinInput >= 1 && newMinInput <= 10 && newMaxBank >= 1 && newMaxBank <= 10) {
+    if (newMinInput >= 1 && newMinInput <= 99 && newMaxBank >= 1 && newMaxBank <= 99) {
         minInputLength = newMinInput;
         maxBankRecommendations = newMaxBank;
         
@@ -152,7 +161,14 @@ function saveSettingsValues() {
         // 입력창에 포커스
         accountInput.focus();
     } else {
-        alert('1에서 10 사이의 값을 입력해주세요.');
+        alert('1에서 99 사이의 값을 입력해주세요.');
+    }
+}
+
+// 입력 필드 길이 제한 함수
+function limitInputLength(input, maxLength) {
+    if (input.value.length > maxLength) {
+        input.value = input.value.slice(0, maxLength);
     }
 }
 
